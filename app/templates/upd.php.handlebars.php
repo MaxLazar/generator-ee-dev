@@ -1,0 +1,145 @@
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+// include base class
+if ( ! class_exists('{{fileName}}_base'))
+{
+	require_once(PATH_THIRD.'{{addonSlug}}/base.{{addonSlug}}.php');
+}
+
+/**
+ * -
+ * @package		{{addonName}}
+ * @subpackage	ThirdParty
+ * @category	Modules
+ * @author    	{{authorName}}
+ * @copyright 	Copyright (c) {{currentYear}} {{authorName}} ({{authorUrl}})
+ * @link		{{authorUrl}}
+ */
+
+class {{fileName}}_upd extends {{fileName}}_base {
+
+	/**
+	 * Extension hooks
+	 *
+	 * @var        array
+	 * @access     private
+	 */
+	private $hooks = array(
+	);
+
+
+	/**
+	 * Constructor
+	 *
+	 * @access     public
+	 * @return     void
+	 */
+	public function __construct()
+	{
+		// Call parent constructor
+		parent::__construct();
+
+		// Set class name
+		$this->class_name = ucfirst({{addonSlugUp}}_PACKAGE);
+	}
+
+    /**
+     * Installer for the Mx_simple_tables module
+     */
+    function install()
+	{
+
+		$data = array(
+			'module_name' 	 => $this->class_name,
+			'module_version' => {{addonSlugUp}}_VERSION,
+			'has_cp_backend' => 'y'
+		);
+
+		ee()->db->insert('modules', $data);
+
+		if (!ee()->db->field_exists('settings', 'exp_modules')) {
+			ee()->load->dbforge();
+			$column = array('settings'	 => array('type' => 'TEXT'));
+			ee()->dbforge->add_column('exp_modules', $column);
+		}
+
+		// --------------------------------------
+		// Add row to modules table
+		// --------------------------------------
+
+		foreach ($this->hooks AS $hook)
+		{
+			$this->_add_hook($hook);
+		}
+
+		return TRUE;
+	}
+
+
+	/**
+	 * Uninstall the Mx_simple_tables module
+	 */
+	function uninstall()
+	{
+
+		ee()->db->select('module_id');
+		$query = ee()->db->get_where('modules', array('module_name' => $this->class_name));
+
+		ee()->db->where('module_id', $query->row('module_id'));
+		ee()->db->delete('module_member_groups');
+
+		ee()->db->where('module_name', $this->class_name);
+		ee()->db->delete('modules');
+
+		ee()->db->where('class',$this->class_name);
+		ee()->db->delete('actions');
+
+		ee()->db->where('class', $this->class_name.'_mcp');
+		ee()->db->delete('actions');
+
+		//DELETE TIME-TABLE
+		ee()->load->dbforge();
+		ee()->dbforge->drop_table('exp_mx_simple_tables_board');
+
+
+		return TRUE;
+	}
+
+	/**
+	 * Update the Mx_simple_tables module
+	 *
+	 * @param $current current version number
+	 * @return boolean indicating whether or not the module was updated
+	 */
+
+	function update($current = '')
+	{
+		return true;
+	}
+
+    	/**
+	 * Add extension hook
+	 *
+	 * @access     private
+	 * @param      string
+	 * @return     void
+	 */
+	private function _add_hook($name)
+	{
+		ee()->db->insert('extensions',
+			array(
+				'class'    => $this->class_name.'_ext',
+				'method'   => $name,
+				'hook'     => $name,
+				'settings' => serialize($this->settings),
+				'priority' => 2,
+				'version'  => $this->version,
+				'enabled'  => 'y'
+			)
+		);
+	}
+
+}
+
+/* End of file upd.{{addonSlug}}.php */
+/* Location: ./system/expressionengine/third_party/{{addonSlug}}/upd.{{addonSlug}}.php */

@@ -1,0 +1,90 @@
+<?php  if ( ! defined( 'BASEPATH' ) ) exit( 'No direct script access allowed' );
+
+// include base class
+if ( ! class_exists('{{fileName}}_base'))
+{
+	require_once(PATH_THIRD.'{{addonSlug}}/base.{{addonSlug}}.php');
+}
+
+/**
+ * -
+ * @package		{{addonName}}
+ * @subpackage	ThirdParty
+ * @category	Modules
+ * @author    	{{authorName}}
+ * @copyright 	Copyright (c) {{currentYear}} {{authorName}} ({{authorUrl}})
+ * @link		{{authorUrl}}
+ */
+
+class {{fileName}} extends {{fileName}}_base {
+
+	// --------------------------------------------------------------------
+	//  PROPERTIES
+	// --------------------------------------------------------------------
+
+	/**
+	 * Return data
+	 *
+	 * @access     public
+	 * @var        string
+	 */
+	public $return_data = '';
+
+	public $_dynamic_parameters = array( );
+
+	/**
+	 * Constructor
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function __construct() {
+		parent::__construct();
+	}
+
+
+	/**
+	 * Helper function for getting a parameter
+	 */
+	function _get_param( $key, $default_value = '' ) {
+		$val = ee()->TMPL->fetch_param( $key );
+
+		if ( $val == '' ) {
+			return $default_value;
+		}
+		return $val;
+	}
+
+	/**
+	 * Helper for prep _no_results tabs pair
+	 *
+	 * @return [type] [description]
+	 */
+	private function _prep_no_results() {
+		$td =& ee()->TMPL->tagdata;
+		$open = 'if {{addonSlug}}_no_results';
+		$close = '/if';
+
+		if ( strpos( $td, $open ) !== FALSE && preg_match( '#'.LD.$open.RD.'(.*?)'.LD.$close.RD.'#s', $td, $match ) ) {
+
+			if ( stristr( $match[1], LD.'if' ) ) {
+				$match[0] = ee()->functions->full_tag( $match[0], $td, LD.'if', LD.'\/if'.RD );
+			}
+
+			ee()->TMPL->no_results = substr( $match[0], strlen( LD.$open.RD ), -strlen( LD.$close.RD ) );
+
+
+			$td = str_replace( $match[0], '', $td );
+		}
+	}
+
+	/**
+	 * Helper funciton for template logging
+	 */
+	function _error_log( $msg ) {
+		ee()->TMPL->log_item( "{{addonSlug}} ERROR: ".$msg );
+	}
+}
+
+/* End of file mod.{{addonSlug}}.php */
+/* Location: ./system/expressionengine/third_party/{{addonSlug}}/mod.{{addonSlug}}.php */
