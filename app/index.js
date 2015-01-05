@@ -358,9 +358,9 @@ EeModuleGenerator.prototype.app = function app()
     this.template('ft.php.handlebars', folder + '/ft.' + this.addonSlug + '.php');
   }
 
-  this.template('helper.php.handlebars', folder + 'helpers' + '/' + this.addonSlug + '_helper.php');
-
-  this.template('mcp_index.php', folder + 'views' + '/mcp_index.php');
-  this.template('_wrapper.php', folder + 'views' + '_wrapper.php');
+  this.template('helper.php.handlebars', folder + '/helpers' + '/' + this.addonSlug + '_helper.php');
+  this.template('config.php.handlebars', folder + 'config.php');
+  this.template('mcp_index.php.handlebars', folder + '/views' + '/mcp_index.php');
+  this.template('_wrapper.php.handlebars', folder + '/views' + '/_wrapper.php');
 
 };
