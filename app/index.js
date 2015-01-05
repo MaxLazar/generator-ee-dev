@@ -4,7 +4,6 @@ var path = require('path');
 var yeoman = require('yeoman-generator');
 var handlebarsEngine = require('yeoman-handlebars-engine');
 
-
 var EeModuleGenerator = module.exports = function EeModuleGenerator(args, options, config)
 {
   arguments[1].engine = handlebarsEngine;
