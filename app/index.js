@@ -105,6 +105,11 @@ EeModuleGenerator.prototype.askFor = function askFor()
       default: this.defaultAuthorUrl
     },
     {
+      name: 'authorEmail',
+      message: 'What is your Email?',
+      default: false
+    },
+    {
       type: 'confirm',
       name: 'hasTheme',
       message: 'Does this add-on need theme files?',
@@ -235,6 +240,7 @@ EeModuleGenerator.prototype.askFor = function askFor()
     this.fileName = props.addonSlug.charAt(0).toUpperCase() + props.addonSlug.slice(1);
     this.addonDescription = props.addonDescription;
     this.authorName = props.authorName;
+    this.authorEmail = props.authorEmail;
     this.authorUrl = props.authorUrl;
     this.hasExtensionSettings = props.hasExtensionSettings ? 'y' : 'n';
     this.hasModuleMod = props.hasModuleMod;
@@ -345,11 +351,11 @@ EeModuleGenerator.prototype.app = function app()
   if (this.hasExtension) {
     this.template('ext.php.handlebars', folder + '/ext.' + this.addonSlug + '.php');
   }
-
+/*
   if (this.hasPlugin) {
     this.template('pi.php.handlebars', folder + '/pi.' + this.addonSlug + '.php');
   }
-
+*/
   if (this.hasAccessory) {
     this.template('acc.php.handlebars', folder + '/acc.' + this.addonSlug + '.php');
   }
@@ -360,7 +366,7 @@ EeModuleGenerator.prototype.app = function app()
 
   this.template('helper.php.handlebars', folder + '/helpers' + '/' + this.addonSlug + '_helper.php');
   this.template('config.php.handlebars', folder + 'config.php');
-  this.template('mcp_index.php.handlebars', folder + '/views' + '/mcp_index.php');
-  this.template('_wrapper.php.handlebars', folder + '/views' + '/_wrapper.php');
+  this.template('mcp_index.php.handlebars', folder + '/views' + '/' + 'mcp_index.php');
+  this.template('_wrapper.php.handlebars', folder + '/views'  + '/'+ '_wrapper.php');
 
 };

@@ -1,7 +1,7 @@
 {
   "name": "generator-ee-dev",
-  "version": "0.0.7",
-  "description": "An ExpressionEngine Add-On generator for Yeoman",
+  "version": "0.0.8",
+  "description": "ExpressionEngine Module/Plugin/Extension/Fieldtype generator for Yeoman (beta)",
   "keywords": [
     "yeoman-generator",
     "expressionengine"

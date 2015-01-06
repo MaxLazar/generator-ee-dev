@@ -1,0 +1,37 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+// include base class
+if ( ! class_exists('{{fileName}}_base'))
+{
+	require_once(PATH_THIRD.'{{addonSlug}}/base.{{addonSlug}}.php');
+}
+
+
+/**
+ * @package		{{addonName}}
+ * @subpackage	ThirdParty
+ * @category	Accessory
+ * @author    	{{authorName}} <{{authorEmail}}>
+ * @copyright 	Copyright (c) {{currentYear}} {{authorName}} ({{authorUrl}})
+ * @link		{{authorUrl}}
+ */
+
+class {{fileName}}_acc extends {{fileName}}_base {
+
+    public $name        = {{addonSlugUp}}_NAME;
+    public $id          = {{addonSlugUp}}_PACKAGE;
+    public $version     = {{addonSlugUp}}_VERSION;
+    public $description = {{addonSlugUp}}_DESC;
+    public $sections    = array();
+
+    /**
+     * Set Sections
+     */
+    public function set_sections()
+    {
+        $this->sections['{{addonName}}'] = 'I made an accessory!';
+    }
+}
+
+/* End of file acc.{{addonSlug}}.php */
+/* Location: /system/expressionengine/third_party/{{addonSlug}}/acc.{{addonSlug}}.php */

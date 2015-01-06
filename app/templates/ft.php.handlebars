@@ -1,0 +1,492 @@
+<?php  if ( ! defined( 'BASEPATH' ) ) exit( 'No direct script access allowed' );
+
+require_once PATH_THIRD . '{{addonSlug}}/config.php';
+
+/**
+ * @package		{{addonName}}
+ * @subpackage	ThirdParty
+ * @category	Fieldtypes
+ * @author    	{{authorName}} <{{authorEmail}}>
+ * @copyright 	Copyright (c) {{currentYear}} {{authorName}} ({{authorUrl}})
+ * @link		{{authorUrl}}
+ */
+
+
+class {{fileName}}_ft extends EE_Fieldtype
+{
+	/**
+	 * Fieldtype Info
+	 *
+	 * @var array
+	 */
+
+	public $info = array(
+			'name'     => {{addonSlugUp}}_NAME,
+			'version'  => {{addonSlugUp}}_VER
+		);
+
+	// Parser Flag (preparse pairs?)
+	var $has_array_data = true;
+
+	// parameters
+	private $ft_parameters = array (
+			array(
+					'name'    => "type",
+					'type'    => 'dropdown',
+					'options' => array('single' => 'single','double' => 'double'),
+					'default' => 'single',
+					'info'    => ''
+				),
+			array(
+					'name'    => "min",
+					'type'    => 'input',
+					'default' => '10',
+					'info'    => ''
+				)
+			);
+
+	/**
+	 * PHP5 construct
+	 */
+	function __construct() {
+		parent::__construct();
+		$this->EE->lang->loadfile( {{addonSlugUp}}_KEY );
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * validate function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	function validate( $data ) {
+		$valid = TRUE;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * display_field function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function display_field( $data, $cell = false ) {
+		$js = "";
+		$field_options = array();
+		$attr = array();
+
+		$this->EE->load->helper( 'custom_field' );
+
+		$is_grid = isset($this->settings['grid_field_id']);
+
+		$field_name = $this->field_name;
+
+		$this->_add_js_css( $cell );
+
+		$this->_insert_js( $js );
+
+		return $data;
+
+	}
+
+{{#if fieldtypeGridSupport}}
+    /**
+     * [grid_display_field description]
+     * @param  [type] $data [description]
+     * @return [type]       [description]
+     */
+	public function grid_display_field($data)
+	{
+	   return $this->display_field( $data, 'grid' );
+	}
+
+    /**
+     * Grid save
+     * @param  [type] $data [description]
+     * @return [type]       [description]
+     */
+  	public function grid_save($data)
+    {
+        return $data;
+    }
+{{/if}}{{#if fieldtypeMatrixSupport}}
+	/**
+	 * Displays the cell
+	 *
+	 * @access public
+	 * @param unknown $data The cell data
+	 */
+	public function display_cell( $data ) {
+
+		return $this->display_field( $data, 'matrix' );
+	}
+{{/if}}{{#if fieldtypeGridSupport}}
+	/**
+	 * display_var_field function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function display_var_field( $data ) {
+
+		return $this->display_field( $data, false );
+	}
+{{/if}}
+	/**
+	 * _add_js_css function.
+	 *
+	 * @access private
+	 * @return void
+	 */
+	private function _add_js_css( $cell = false ) {
+
+		$theme_url =  $this->EE->config->item( 'theme_folder_url' ) . 'third_party/mx_rangeslider';
+
+		if ( !isset( $this->EE->session->cache[{{addonSlugUp}}_KEY]['header'] ) ) {
+
+			$this->EE->session->cache[{{addonSlugUp}}_KEY]['header'] = true;
+		};
+{{#if fieldtypeMatrixSupport}}
+		if ( $cell == 'matrix' && !isset( $this->EE->session->cache[{{addonSlugUp}}_KEY]['cell'] ) ) {
+			$this->EE->session->cache[{{addonSlugUp}}_KEY]['cell'] = true;
+		}
+{{/if}}{{#if fieldtypeGridSupport}}
+		if ( $cell == 'grid' && !isset( $this->EE->session->cache[{{addonSlugUp}}_KEY]['cell_grid'] ) ) {
+			$this->EE->session->cache[{{addonSlugUp}}_KEY]['cell_grid'] = true;
+		}
+{{/if}}
+	}
+
+	/**
+	 * _get_field_options function.
+	 *
+	 * @access private
+	 * @param mixed   $data
+	 * @return void
+	 */
+	function _get_field_options( $data ) {
+
+		if ( ! is_array( $this->settings['options'] ) ) {
+			foreach ( explode( "\n", trim( $this->settings['options'] ) ) as $v ) {
+				$v = trim( $v );
+
+				$field_options[form_prep( $v )] = form_prep( $v );
+			}
+		}
+		else {
+			$field_options = $this->settings['options'];
+		}
+
+		return $field_options;
+	}
+
+	/**
+	 * _insert_js function.
+	 *
+	 * @access private
+	 * @param mixed   $js
+	 * @return void
+	 */
+	private function _insert_js( $js ) {
+		$this->EE->cp->add_to_foot( '<script type="text/javascript">'.$js.'</script>' );
+	}
+
+{{#if fieldtypeContentElementsSupport}}
+	    /**
+	     * Replace Content Elements element tag
+	     **/
+	    public function replace_element_tag($data, $params = array(), $tagdata = false)
+	    {
+	        return $this->replace_tag($data, $params, $tagdata);
+	    }
+{{/if}}
+
+	/**
+	 * replace_tag function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @param string  $params  (default: '')
+	 * @param string  $tagdata (default: '')
+	 * @return void
+	 */
+	public function replace_tag( $data, $params = '', $tagdata = '' ) {
+        {{#if hasFieldtypeTagPair}}
+        return $data ? ee()->TMPL->parse_variables($tagdata, $data) : ee()->TMPL->no_results();
+        {{else}}
+        return $data;
+        {{/if}}
+	}
+
+    /**
+     * replace_value function.
+     *
+     * @access public
+     * @param mixed   $data
+     * @param array   $params (default: array())
+     * @return void
+     */
+    public function replace_value( $data, $params = array() ) {
+        return $data;
+    }
+{{#if fieldtypeMatrixSupport}}
+	/**
+	 * Display Cell Settings
+	 *
+	 * @access public
+	 * @param unknown $cell_settings array The cell settings
+	 * @return array Label and form inputs
+	 */
+	public function display_cell_settings( $cell_settings ) {
+		return $this->_build_settings( $cell_settings );
+	}
+{{/if}}
+	/**
+	 * display_settings function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function display_settings( $data ) {
+		foreach ( $this->_build_settings( $data ) as $v ) {
+			$this->EE->table->add_row( $v );
+		}
+	}
+{{#if fieldtypeGridSupport}}
+    /**
+     * grid_display_settings function.
+     *
+     * @access public
+     * @param mixed   $data
+     * @return void
+     */
+	public function grid_display_settings($data) {
+		$out = array();
+
+		foreach	( $this->_build_settings( $data ) as $v ) {
+			$out[] = $this->grid_settings_row($v[0],$v[1],'');
+		}
+
+		return $out;
+	}
+{{/if}}
+{{#if fieldtypeLowVariablesSupport}}
+	/**
+	 * display_var_settings function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function display_var_settings( $data ) {
+		return $this->_build_settings( $data, 'lv' );
+	}
+{{/if}}
+	/**
+	 * build_settings function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	private function _build_settings( $data, $type = false ) {
+
+		if ( $type == "lv" ) {
+			$prefix = 'variable_settings['.{{addonSlugUp}}_KEY.']';
+		}
+		else {
+			$prefix = {{addonSlugUp}}_KEY . '_';
+		}
+
+		$settings = array();
+
+		foreach ($this->ft_parameters as $key => $value) {
+			if ($value['type'] == 'dropdown') {
+				$settings[] =  array( lang( $value['name'], $value['name'] ), form_dropdown( $prefix . '['.$value['name'].']', $value['options'], $this->_data_help($data, $value['name'], $value['default'])	 ) );
+			};
+			if ($value['type'] == 'input') {
+				$settings[] = array( lang( $value['name'], $value['name'] ), form_input( $prefix . '['.$value['name'].']', $this->_data_help($data, $value['name'], $value['default']) ) );
+			};
+			if ($value['type'] == 'textarea') {
+				$settings[] = array( lang( $value['name'], $value['name'] ), form_textarea( $prefix . '['.$value['name'].']', $this->_data_help($data, $value['name'], $value['default']) ) );
+			};
+		}
+
+		//variable_settings
+		return $settings;
+
+	}
+
+	/**
+	 * _data_help function.
+	 *
+	 * @access private
+	 * @param mixed   $data
+	 * @param string  $default (default: '')
+	 * @return void
+	 */
+	private function _data_help( $data, $key, $default = '' ) {
+		return ( empty( $data[$key] ) or $data[$key] == '' ) ? $default : $data[$key];
+	}
+
+{{#if fieldtypeGridSupport}}
+	/**
+     * Grid settings validation callback; makes sure there are file upload
+     * directories available before allowing a new file field to be saved
+     *
+     * @param   array   Grid settings
+     * @return  mixed   Validation error or TRUE if passed
+     */
+    function grid_validate_settings($data)
+    {
+        return TRUE;
+    }
+
+
+    /**
+     * [grid_save_settings description]
+     * @param  [type] $data [description]
+     * @return [type]       [description]
+     */
+    function grid_save_settings($data)
+    {
+
+        return $this->save_settings( $data );
+    }
+{{/if}}
+
+{{#if fieldtypeMatrixSupport}}
+	/**
+	 * save_cell_settings function. Save Matrix settings
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function save_cell_settings( $data ) {
+		return $this->save_settings( $data );
+	}
+{{/if}}
+
+{{#if fieldtypeLowVariablesSupport}}
+	/**
+	 * save_var_settings function. Save Low Variable settings
+	 *
+	 * @access public
+	 * @param mixed   $var_settings
+	 * @return void
+	 */
+	public function save_var_settings( $var_settings ) {
+		return $this->save_settings( $var_settings, 'lv' );
+	}
+{{/if}}
+
+	/**
+	 * save_settings function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function save_settings( $data, $type = false ) {
+
+		$prefix = {{addonSlugUp}}_KEY . '_';
+
+
+		if ( $type == "lv" )
+			$data[$prefix] = $data;
+
+		if ( isset( $data[$prefix] ) ) {
+
+			foreach ( $data[$prefix] as $key => $val ) {
+
+				$data[$key] = $val;
+
+			}
+
+		}
+
+		return $data;
+
+	}
+	// --------------------------------------------------------------------
+
+
+	// --------------------------------------------------------------------
+	/**
+	 * install function.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function install() {
+		return array(
+			'' => ''
+		);
+
+	}
+
+	/**
+	 * save function.
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function save( $data ) {
+		return $data;
+	}
+
+{{#if fieldtypeLowVariablesSupport}}
+	/**
+	 * save_var_field function. Save Low Variable
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function save_var_field( $data ) {
+		return $this->save( $data );
+	}
+{{/if}}
+
+
+{{#if fieldtypeMatrixSupport}}
+	/**
+	 * save_cell function. Save Matrix Cell
+	 *
+	 * @access public
+	 * @param mixed   $data
+	 * @return void
+	 */
+	public function save_cell( $data ) {
+
+		return $this->save( $data );
+
+	}
+{{/if}}
+
+	/**
+     * Accept all content types.
+     *
+     * @param string  The name of the content type
+     * @return bool   Accepts all content types
+     */
+    public function accepts_content_type($name)
+    {
+        return TRUE;
+    }
+
+}
+
+// END {{addonSlug}}_ft class
+
+/* End of file ft.{{addonSlug}}.php */
+/* Location: ./expressionengine/third_party/{{addonSlug}}/ft.{{addonSlug}}.php */

@@ -1,0 +1,175 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+// include base class
+if ( ! class_exists('{{fileName}}_base'))
+{
+	require_once(PATH_THIRD.'{{addonSlug}}/base.{{addonSlug}}.php');
+}
+
+
+/**
+ * @package		{{addonName}}
+ * @subpackage	ThirdParty
+ * @category	Extension
+ * @author    	{{authorName}} <{{authorEmail}}>
+ * @copyright 	Copyright (c) {{currentYear}} {{authorName}} ({{authorUrl}})
+ * @link		{{authorUrl}}
+ */
+
+class {{fileName}}_ext extends {{fileName}}_base {
+
+	// --------------------------------------------------------------------
+	// PROPERTIES
+	// --------------------------------------------------------------------
+
+	/**
+	 * Do settings exist?
+	 *
+	 * @var        string	y|n
+	 * @access     public
+	 */
+	public $settings_exist = 'y';
+
+	/**
+	 * Move installation to MOD
+	 *
+	 * @var        array
+	 * @access     public
+	 */
+	public $required_by = array('module');
+
+	// --------------------------------------------------------------------
+	// METHODS
+	// --------------------------------------------------------------------
+
+	/**
+	 * Constructor
+	 *
+	 * @access     public
+	 * @param      mixed
+	 * @return     void
+	 */
+	public function __construct($settings = array())
+	{
+		// Call Base constructor
+		parent::__construct();
+
+		// Assign current settings
+		$this->settings = array_merge($this->default_settings, $settings);
+
+		// And overwite given settings with the ones defined in config.php
+		//$this->apply_config_overrides();
+	}
+
+
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Extension settings form
+	 *
+	 * @access     public
+	 * @param      array
+	 * @return     string
+	 */
+	public function settings_form($settings = array())
+	{
+		$this->set_base_url();
+
+
+		// -------------------------------------
+		// Merge given settings with default settings
+		// -------------------------------------
+
+		$this->get_settings($settings);
+	//	$this->apply_config_overrides();
+
+		// -------------------------------------
+		// Add more data to settings array for display
+		// -------------------------------------
+
+		$this->data = $this->settings;
+
+		// --------------------------------------
+		// Add this extension's name and save path to display data
+		// --------------------------------------
+
+		$this->data['name'] = $this->package;
+		$this->data['save'] = 'C=addons_extensions&M=save_extension_settings';
+
+		// -------------------------------------
+		//  Build output
+		// -------------------------------------
+
+		//ee()->cp->set_variable('cp_page_title', ee()->lang->line('extension_settings'));
+		ee()->cp->set_breadcrumb($this->base_url, ee()->lang->line('mx_salesforce_module_name'));
+
+		// -------------------------------------
+		//  Load view
+		// -------------------------------------
+
+		return $this->view('ext_settings');
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Save extension settings
+	 *
+	 * @access     public
+	 * @return     void
+	 */
+	public function save_settings()
+	{
+		// -------------------------------------
+		// Loop through default settings,
+		// put POST values in settings array
+		// -------------------------------------
+
+		foreach ($this->default_settings AS $key => $val)
+		{
+			$this->settings[$key] = ee()->input->post($key);
+		}
+
+		// -------------------------------------
+		// Then apply config overrides
+		// -------------------------------------
+
+		$this->apply_config_overrides();
+
+		// -------------------------------------
+		// Check path backslashes
+		// -------------------------------------
+
+		if (strpos($this->settings['file_path'], '\\'))
+		{
+			$this->settings['file_path'] = addslashes($this->settings['file_path']);
+		}
+
+		// -------------------------------------
+		// Save the serialized settings in DB
+		// -------------------------------------
+
+		ee()->db->update(
+			'extensions',
+			array('settings' => serialize($this->settings)),
+			"class = '".ucfirst($this->package)."_ext'"
+		);
+
+		// -------------------------------------
+		// Redirect back to extension page
+		// -------------------------------------
+
+		$this->set_base_url();
+		ee()->session->set_flashdata('msg', 'settings_saved');
+		ee()->functions->redirect($this->ext_url);
+		exit;
+	}
+
+
+	// --------------------------------------------------------------------
+
+}
+
+/* End of file ext.{{addonSlug}}.php */
+/* Location: ./system/expressionengine/third_party/{{addonSlug}}/ext.{{addonSlug}}.php */
