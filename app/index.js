@@ -366,6 +366,7 @@ EeModuleGenerator.prototype.app = function app()
 
   this.template('helper.php.handlebars', folder + '/helpers' + '/' + this.addonSlug + '_helper.php');
   this.template('config.php.handlebars', folder + '/' + 'config.php');
+  this.template('base.php.handlebars', folder + '/' + 'base.cloneit.php');
   this.template('mcp_index.php.handlebars', folder + '/views' + '/' + 'mcp_index.php');
   this.template('_wrapper.php.handlebars', folder + '/views'  + '/'+ '_wrapper.php');
 
